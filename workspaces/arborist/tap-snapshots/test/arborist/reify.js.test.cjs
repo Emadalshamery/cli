@@ -17365,7 +17365,6 @@ Array [
   "reify:retireShallow",
   "reify:save",
   "reify:trash",
-  "reify:trashOmits",
   "reify:unpack",
   "reify:unretire",
   "reifyNode:node_modules/@isaacs/testing-peer-deps-b",
