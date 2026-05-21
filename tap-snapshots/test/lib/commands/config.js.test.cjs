@@ -10,9 +10,9 @@ exports[`test/lib/commands/config.js TAP config list --json > output matches sna
   "cache": "{CACHE}",
   "color": {COLOR},
   "json": true,
-  "projectloaded": "yes",
-  "userloaded": "yes",
-  "globalloaded": "yes",
+  "tag": "from-project",
+  "init-author-name": "from-user",
+  "init-license": "from-global",
   "access": null,
   "all": false,
   "allow-same-version": false,
@@ -77,9 +77,7 @@ exports[`test/lib/commands/config.js TAP config list --json > output matches sna
   "include-workspace-root": false,
   "include-attestations": false,
   "init-author-email": "",
-  "init-author-name": "",
   "init-author-url": "",
-  "init-license": "ISC",
   "init-module": "{CWD}/home/.npm-init.js",
   "init-type": "commonjs",
   "init-version": "1.0.0",
@@ -167,7 +165,6 @@ exports[`test/lib/commands/config.js TAP config list --json > output matches sna
   "sign-git-tag": false,
   "strict-peer-deps": false,
   "strict-ssl": true,
-  "tag": "latest",
   "tag-version-prefix": "v",
   "timing": false,
   "umask": 0,
@@ -258,9 +255,9 @@ include-attestations = false
 include-staged = false
 include-workspace-root = false
 init-author-email = ""
-init-author-name = ""
+; init-author-name = "" ; overridden by user
 init-author-url = ""
-init-license = "ISC"
+; init-license = "ISC" ; overridden by global
 init-module = "{CWD}/home/.npm-init.js"
 init-private = false
 init-type = "commonjs"
@@ -348,7 +345,7 @@ sign-git-commit = false
 sign-git-tag = false
 strict-peer-deps = false
 strict-ssl = true
-tag = "latest"
+; tag = "latest" ; overridden by project
 tag-version-prefix = "v"
 timing = false
 token-description = null
@@ -369,15 +366,15 @@ yes = null
 
 ; "global" config from {CWD}/global/etc/npmrc
 
-globalloaded = "yes"
+init-license = "from-global"
 
 ; "user" config from {CWD}/home/.npmrc
 
-userloaded = "yes"
+init-author-name = "from-user"
 
 ; "project" config from {CWD}/prefix/.npmrc
 
-projectloaded = "yes"
+tag = "from-project"
 
 ; "cli" config from command line options
 
@@ -389,19 +386,17 @@ long = true
 exports[`test/lib/commands/config.js TAP config list > output matches snapshot 1`] = `
 ; "global" config from {CWD}/global/etc/npmrc
 
-globalloaded = "yes"
+init-license = "from-global"
 
 ; "user" config from {CWD}/home/.npmrc
 
 _auth = (protected)
 //nerfdart:_auth = (protected)
-//nerfdart:auth = (protected)
-auth = (protected)
-userloaded = "yes"
+init-author-name = "from-user"
 
 ; "project" config from {CWD}/prefix/.npmrc
 
-projectloaded = "yes"
+tag = "from-project"
 
 ; "cli" config from command line options
 
