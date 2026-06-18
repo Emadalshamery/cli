@@ -1793,6 +1793,63 @@ const definitions = {
     `,
     flatten,
   }),
+  'patches-dir': new Definition('patches-dir', {
+    default: 'patches',
+    type: String,
+    description: `
+      The directory, relative to the project root, where \`npm patch commit\`
+      writes patch files for \`patchedDependencies\`.
+    `,
+    flatten,
+  }),
+  // CLI-only: deliberately no flatten, so a value in .npmrc/env never reaches the install pipeline.
+  // npm install reads it from the cli layer only, and npm ci rejects it.
+  'allow-unused-patches': new Definition('allow-unused-patches', {
+    default: false,
+    type: Boolean,
+    description: `
+      Install even when a registered patch in \`patchedDependencies\` matches no
+      installed package. Does not silence patch apply failures.
+
+      This flag is only honored when passed on the command line; it is ignored
+      in \`.npmrc\` and environment variables, and rejected by \`npm ci\`.
+    `,
+  }),
+  'ignore-patch-failures': new Definition('ignore-patch-failures', {
+    default: false,
+    type: Boolean,
+    description: `
+      Install even when a registered patch fails to apply, with a warning per
+      failure. Intended for incident response only.
+
+      This flag is only honored when passed on the command line; it is ignored
+      in \`.npmrc\` and environment variables, and rejected by \`npm ci\`.
+    `,
+  }),
+  'edit-dir': new Definition('edit-dir', {
+    default: null,
+    type: [null, path],
+    description: `
+      Override the temporary directory used by \`npm patch add\` to prepare a
+      package for editing.
+    `,
+  }),
+  'ignore-existing': new Definition('ignore-existing', {
+    default: false,
+    type: Boolean,
+    description: `
+      With \`npm patch add\`, discard a previous unfinished edit directory and
+      start fresh.
+    `,
+  }),
+  'keep-edit-dir': new Definition('keep-edit-dir', {
+    default: false,
+    type: Boolean,
+    description: `
+      With \`npm patch commit\`, do not remove the edit directory after
+      committing the patch.
+    `,
+  }),
   parseable: new Definition('parseable', {
     default: false,
     type: Boolean,
@@ -2457,6 +2514,16 @@ const definitions = {
 
       Timing information will also be reported in the terminal. To suppress this
       while still writing the timing file, use \`--silent\`.
+    `,
+  }),
+  to: new Definition('to', {
+    default: null,
+    hint: '<version>',
+    type: [null, String],
+    description: `
+      Used by \`npm patch update\` to set the version to rebase a patch onto
+      when it cannot be read from \`package-lock.json\` — for example an
+      exact-version selector, or a version that has not been installed yet.
     `,
   }),
   umask: new Definition('umask', {

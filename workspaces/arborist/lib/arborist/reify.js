@@ -24,6 +24,8 @@ const debug = require('../debug.js')
 const onExit = require('../signal-handling.js')
 const optionalSet = require('../optional-set.js')
 const relpath = require('../relpath.js')
+const { applyPatchToDir, patchIntegrity } = require('../patch.js')
+const { readFile } = require('node:fs/promises')
 const retirePath = require('../retire-path.js')
 const treeCheck = require('../tree-check.js')
 const { defaultLockfileVersion } = require('../shrinkwrap.js')
@@ -720,6 +722,7 @@ module.exports = cls => class Reifier extends cls {
         const { content: pkg } = await PackageJson.normalize(node.path)
         node.package.scripts = pkg.scripts
       }
+      await this.#applyPatch(node)
       return
     }
 
@@ -747,10 +750,59 @@ module.exports = cls => class Reifier extends cls {
     return symlink(rel, node.path, 'junction')
   }
 
+  // apply a registered patch to a freshly extracted node, after extract and before rebuild
+  async #applyPatch (node) {
+    if (!node.patched) {
+      return
+    }
+    const { path: patchPath, integrity } = node.patched
+
+    // validate the patch file here too, since reify can run on an ideal tree that skipped resolvePatchedDependencies
+    let contents
+    try {
+      contents = await readFile(resolve(this.path, patchPath))
+    } catch {
+      throw Object.assign(
+        new Error(`patch file not found: ${patchPath}`),
+        { code: 'EPATCHNOTFOUND', path: patchPath, node: node.name }
+      )
+    }
+    if (patchIntegrity(contents) !== integrity) {
+      throw Object.assign(
+        new Error(`patch file ${patchPath} does not match the recorded integrity`),
+        { code: 'EPATCHINTEGRITY', path: patchPath, node: node.name }
+      )
+    }
+
+    try {
+      await applyPatchToDir({ patch: contents, cwd: node.path })
+    } catch (er) {
+      if (this.options.ignorePatchFailures) {
+        // the linked side-store keys a package by its patch, so an unpatched package cannot be represented at a patched key and would be trusted on later installs
+        if (node.isInStore) {
+          throw Object.assign(
+            new Error(`Cannot skip the failed patch for ${node.name} under install-strategy=linked. ` +
+              `Fix the patch or install with a different strategy.`),
+            { code: 'EPATCHFAILED', path: patchPath, node: node.name }
+          )
+        }
+        log.warn('patch', `failed to apply ${patchPath} to ${node.name}: ${er.message}`)
+        // the patch was not applied, so do not record it in the lockfile
+        node.patched = null
+        return
+      }
+      throw er
+    }
+  }
+
   // if the node is optional, then the failure of the promise is nonfatal
   // just add it and its optional set to the trash list.
   [_handleOptionalFailure] (node, p) {
-    return (node.optional ? p.catch(() => {
+    return (node.optional ? p.catch((er) => {
+      // a declared patch must apply or fail loudly, even on an optional dep
+      if (typeof er?.code === 'string' && er.code.startsWith('EPATCH')) {
+        throw er
+      }
       const set = optionalSet(node)
       for (const node of set) {
         log.verbose('reify', 'failed optional dependency', node.path)

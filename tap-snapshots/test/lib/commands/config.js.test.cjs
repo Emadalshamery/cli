@@ -130,6 +130,12 @@ exports[`test/lib/commands/config.js TAP config list --json > output matches sna
   "package-lock-only": false,
   "pack-destination": ".",
   "packages": [],
+  "patches-dir": "patches",
+  "allow-unused-patches": false,
+  "ignore-patch-failures": false,
+  "edit-dir": null,
+  "ignore-existing": false,
+  "keep-edit-dir": false,
   "parseable": false,
   "allow-scripts-pending": false,
   "allow-scripts-pin": true,
@@ -176,6 +182,7 @@ exports[`test/lib/commands/config.js TAP config list --json > output matches sna
   "strict-ssl": true,
   "tag-version-prefix": "v",
   "timing": false,
+  "to": null,
   "umask": 0,
   "unicode": false,
   "update-notifier": true,
@@ -208,6 +215,7 @@ allow-same-version = false
 allow-scripts = [""]
 allow-scripts-pending = false
 allow-scripts-pin = true
+allow-unused-patches = false
 also = null
 audit = true
 audit-level = null
@@ -240,6 +248,7 @@ diff-src-prefix = "a/"
 diff-text = false
 diff-unified = 3
 dry-run = false
+edit-dir = null
 editor = "{EDITOR}"
 engine-strict = false
 expect-result-count = null
@@ -263,6 +272,8 @@ globalconfig = "{CWD}/global/etc/npmrc"
 heading = "npm"
 https-proxy = null
 if-present = false
+ignore-existing = false
+ignore-patch-failures = false
 ignore-scripts = false
 include = []
 include-attestations = false
@@ -285,6 +296,7 @@ init.version = "1.0.0"
 install-links = false
 install-strategy = "hoisted"
 json = false
+keep-edit-dir = false
 key = null
 legacy-bundling = false
 legacy-peer-deps = false
@@ -324,6 +336,7 @@ packages-all = false
 packages-and-scopes-permission = null
 parseable = false
 password = (protected)
+patches-dir = "patches"
 prefer-dedupe = false
 prefer-offline = false
 prefer-online = false
@@ -364,6 +377,7 @@ strict-ssl = true
 ; tag = "latest" ; overridden by project
 tag-version-prefix = "v"
 timing = false
+to = null
 token-description = null
 umask = 0
 unicode = false
